@@ -1,3 +1,8 @@
+import mediapipe as mp
+from mediapipe.tasks.python import vision
+
+
+
 def main():
     print("Hello from pose-buddy!")
 
