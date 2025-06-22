@@ -4,9 +4,8 @@ from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from mediapipe import solutions
 from mediapipe.framework.formats import landmark_pb2
+from mediapipe.tasks.python.core.base_options import BaseOptions
 import cv2
-
-
 
 def draw_landmarks_on_image(rgb_image, detection_result):
     pose_landmarks_list = detection_result.pose_landmarks
@@ -17,7 +16,8 @@ def draw_landmarks_on_image(rgb_image, detection_result):
 
         pose_landmarks_proto = landmark_pb2.NormalizedLandmarkList()
         pose_landmarks_proto.landmark.extend([
-            landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z) for landmark in pose_landmarks])
+            landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z)
+            for landmark in pose_landmarks])
         solutions.drawing_utils.draw_landmarks(
             annotated_image,
             pose_landmarks_proto,
@@ -25,46 +25,61 @@ def draw_landmarks_on_image(rgb_image, detection_result):
             solutions.drawing_styles.get_default_pose_landmarks_style())
     return annotated_image
 
-
 def main():
-    IMAGE_FILE = r'images\image.png'  # Use raw string
-    model_path = r'C:\Users\ananj\project\pose_buddy\model\pose_landmarker_lite.task'
+    model_path = r"model\pose_landmarker_lite.task"
+    video_path = r"vids\man_running.mp4"
 
-    # if os.path.exists(IMAGE_FILE):
-    #     print('Loaded file:', IMAGE_FILE)
-    # else:
-    #     print("File not found!")
-    #     return
-
-    # Load image for pose detection
-    image = cv2.imread(IMAGE_FILE)
-
-    base_options = python.BaseOptions(model_asset_path=model_path)
+    # Load MediaPipe pose detector
+    base_options = BaseOptions(model_asset_path=model_path)
     options = vision.PoseLandmarkerOptions(
         base_options=base_options,
-        output_segmentation_masks=True)
-    
-    # LANDMARKER is does the main stuff link figuring out shit
-    landmarker = vision.PoseLandmarker.create_from_options(options)
+        output_segmentation_masks=False)
+    pose_detector = vision.PoseLandmarker.create_from_options(options)
 
-    # Use MediaPipe image format
-    mp_image = mp.Image.create_from_file(IMAGE_FILE)
+    # Open input video
+    cap = cv2.VideoCapture(video_path)
 
-    # Detect pose
-    detection_result = landmarker.detect(mp_image)
+    # Set up output video writer
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    out = cv2.VideoWriter("output_with_pose.mp4", fourcc, 30.0, 
+                          (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))))
 
-    # Draw pose on image
-    annotated_image = draw_landmarks_on_image(mp_image.numpy_view(), detection_result)
-    cv2.imshow("Pose Landmarks", cv2.cvtColor(annotated_image, cv2.COLOR_RGB2BGR))
+    # Create resizable display window
+    cv2.namedWindow('Pose Detection', cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('Pose Detection', 960, 540)  # Optional size
 
-    # Show segmentation mask
-    segmentation_mask = detection_result.segmentation_masks[0].numpy_view()
-    visualized_mask = np.repeat(segmentation_mask[:, :, np.newaxis], 3, axis=2) * 255
-    cv2.imshow("Segmentation Mask", visualized_mask.astype(np.uint8))
+    while cap.isOpened():
+        ret, frame = cap.read()
+        if not ret:
+            break
 
-    cv2.waitKey(0)
+        # Convert to RGB for MediaPipe
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # Run pose detection
+        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
+        detection_result = pose_detector.detect(mp_image)
+
+        # Draw landmarks
+        annotated_frame = draw_landmarks_on_image(rgb_frame, detection_result)
+
+        # Convert back to BGR for OpenCV display/write
+        bgr_annotated = cv2.cvtColor(annotated_frame, cv2.COLOR_RGB2BGR)
+
+        # Write frame to output
+        out.write(bgr_annotated)
+
+        # Display frame
+        cv2.imshow('Pose Detection', bgr_annotated)
+
+        # Exit on 'q' key or manual close
+        key = cv2.waitKey(1)
+        if key == ord('q') or cv2.getWindowProperty('Pose Detection', cv2.WND_PROP_VISIBLE) < 1:
+            break
+
+    cap.release()
+    out.release()
     cv2.destroyAllWindows()
-
 
 if __name__ == "__main__":
     main()
