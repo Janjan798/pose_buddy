@@ -5,7 +5,7 @@ from mediapipe.tasks.python import vision
 from mediapipe import solutions
 from mediapipe.framework.formats import landmark_pb2
 import cv2
-import os
+
 
 
 def draw_landmarks_on_image(rgb_image, detection_result):
@@ -30,29 +30,28 @@ def main():
     IMAGE_FILE = r'images\image.png'  # Use raw string
     model_path = r'C:\Users\ananj\project\pose_buddy\model\pose_landmarker_lite.task'
 
-    if os.path.exists(IMAGE_FILE):
-        print('Loaded file:', IMAGE_FILE)
-    else:
-        print("File not found!")
-        return
+    # if os.path.exists(IMAGE_FILE):
+    #     print('Loaded file:', IMAGE_FILE)
+    # else:
+    #     print("File not found!")
+    #     return
 
     # Load image for pose detection
     image = cv2.imread(IMAGE_FILE)
-    cv2.imshow("Loaded Image", image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
 
     base_options = python.BaseOptions(model_asset_path=model_path)
     options = vision.PoseLandmarkerOptions(
         base_options=base_options,
         output_segmentation_masks=True)
-    detector = vision.PoseLandmarker.create_from_options(options)
+    
+    # LANDMARKER is does the main stuff link figuring out shit
+    landmarker = vision.PoseLandmarker.create_from_options(options)
 
     # Use MediaPipe image format
     mp_image = mp.Image.create_from_file(IMAGE_FILE)
 
     # Detect pose
-    detection_result = detector.detect(mp_image)
+    detection_result = landmarker.detect(mp_image)
 
     # Draw pose on image
     annotated_image = draw_landmarks_on_image(mp_image.numpy_view(), detection_result)
