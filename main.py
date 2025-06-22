@@ -6,6 +6,12 @@ from mediapipe import solutions
 from mediapipe.framework.formats import landmark_pb2
 from mediapipe.tasks.python.core.base_options import BaseOptions
 import cv2
+import datetime
+
+
+mp_drawing = solutions.drawing_utils
+mp.pose = solutions.pose
+
 
 def draw_landmarks_on_image(rgb_image, detection_result):
     pose_landmarks_list = detection_result.pose_landmarks
@@ -35,7 +41,8 @@ def main():
     pose_detector = vision.PoseLandmarker.create_from_options(options)
 
     # Open input video
-    cap = cv2.VideoCapture(video_path)
+    cap = cv2.VideoCapture(video_path) # makes video capture object i.e the Video 
+
 
     # Set up output video writer
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -46,11 +53,16 @@ def main():
     cv2.namedWindow('Pose Detection', cv2.WINDOW_NORMAL)
     cv2.resizeWindow('Pose Detection', 960, 540)  # Optional size
 
-    while cap.isOpened():
-        ret, frame = cap.read()
-        if not ret:
+    while cap.isOpened(): # is the video frame loop 
+        now = datetime.datetime.now()
+        
+        ret, frame = cap.read() # return the current feed from the Video  
+        if not ret: # ret is a true false variable frame is the image from the 
             break
-
+        
+        
+        
+        # POSE DETECTION BEGIN
         # Convert to RGB for MediaPipe
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
@@ -64,14 +76,21 @@ def main():
         # Convert back to BGR for OpenCV display/write
         bgr_annotated = cv2.cvtColor(annotated_frame, cv2.COLOR_RGB2BGR)
 
+        #POSE DETECTION END
+
         # Write frame to output
         out.write(bgr_annotated)
 
         # Display frame
         cv2.imshow('Pose Detection', bgr_annotated)
 
+
+
+        #print(detection_result)
+        #print(datetime.datetime.now()- now)
+       
         # Exit on 'q' key or manual close
-        key = cv2.waitKey(1)
+        key = cv2.waitKey(1)# IDK WTF THIS DOES BUT 1 WORKS
         if key == ord('q') or cv2.getWindowProperty('Pose Detection', cv2.WND_PROP_VISIBLE) < 1:
             break
 
