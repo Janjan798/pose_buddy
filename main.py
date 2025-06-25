@@ -6,11 +6,12 @@ from mediapipe import solutions
 from mediapipe.framework.formats import landmark_pb2
 from mediapipe.tasks.python.core.base_options import BaseOptions
 import cv2
-import datetime
+from video_data import Video
 
 
 mp_drawing = solutions.drawing_utils
 mp.pose = solutions.pose
+video1 = Video("video1")
 
 
 def draw_landmarks_on_image(rgb_image, detection_result):
@@ -53,14 +54,15 @@ def main():
     cv2.namedWindow('Pose Detection', cv2.WINDOW_NORMAL)
     cv2.resizeWindow('Pose Detection', 960, 540)  # Optional size
 
+
+    frno=0 #frame no.
+
     while cap.isOpened(): # is the video frame loop 
-        now = datetime.datetime.now()
-        
         ret, frame = cap.read() # return the current feed from the Video  
         if not ret: # ret is a true false variable frame is the image from the 
             break
         
-        
+        frno+=1
         
         # POSE DETECTION BEGIN
         # Convert to RGB for MediaPipe
@@ -70,8 +72,10 @@ def main():
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
         detection_result = pose_detector.detect(mp_image)
 
+        #writing data into list
+        data=detection_result.pose_landmarks
+        video1.data_into_list(data,frno)#landmarks are uploaded into the object's all_landmarks list
 
-        print(detection_result.pose_landmarks)
         # Draw landmarks
         annotated_frame = draw_landmarks_on_image(rgb_frame, detection_result)
 
@@ -85,16 +89,13 @@ def main():
 
         # Display frame
         cv2.imshow('Pose Detection', bgr_annotated)
-
-
-
-        #print(detection_result)
-        #print(datetime.datetime.now()- now)
        
         # Exit on 'q' key or manual close
         key = cv2.waitKey(1)# IDK WTF THIS DOES BUT 1 WORKS
         if key == ord('q') or cv2.getWindowProperty('Pose Detection', cv2.WND_PROP_VISIBLE) < 1:
             break
+
+    video1.list_into_csv()#data into csv from list
 
     cap.release()
     out.release()
