@@ -19,7 +19,7 @@ def main():
             config = json5.load(f)
     
         video_path = config['videos']['input_path']
-        model_path = config['models']['pose_detection']['light_model_path']
+        model_path = config['models']['pose_detection']['full_model_path']
     except:
         model_path = r"model\pose_landmarker_lite.task"
         video_path = r"vids\man_running.mp4"
@@ -48,20 +48,15 @@ def main():
         # Convert to RGB for MediaPipe
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-
-        detection_result = MediapipeDetect.return_detection_result(model_path,frame)
-
-        #writing data into list
-        data=detection_result.pose_landmarks
-        video1.data_into_list(data,frno)#landmarks are uploaded into the object's all_landmarks list
+     
 
         # Draw landmarks
-        annotated_frame = drawing_utils.draw_landmarks_on_image(rgb_frame, data)
         detection_result_landmarks = MediapipeDetect.return_landmarks(model_path= model_path,frame=frame)
         data = detection_result_landmarks
-        
+        #writing data into list
+        video1.data_into_list(data,frno)#landmarks are uploaded into the object's all_landmarks list
 
-        annotated_frame = drawing_utils.draw_landmarks_on_image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), detection_result_landmarks)# frame converted to RGB
+        annotated_frame = drawing_utils.draw_landmarks_on_image(rgb_frame, data)
 
         # Convert back to BGR for OpenCV display/write
         bgr_annotated = cv2.cvtColor(annotated_frame, cv2.COLOR_RGB2BGR)

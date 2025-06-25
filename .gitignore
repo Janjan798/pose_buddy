@@ -1,0 +1,8 @@
+*.csv
+*.json5
+*.mp4
+*.venv
+*.task
+*.vscode
+__pycache__/
+*.py[cod]

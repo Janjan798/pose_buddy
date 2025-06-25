@@ -4,8 +4,7 @@ from abc import ABC, abstractmethod
 from mediapipe.tasks.python import vision
 from mediapipe import solutions
 from mediapipe.tasks.python.core.base_options import BaseOptions
-import cv2,json5
-import datetime
+import cv2
 
 
 class Detect(ABC):
