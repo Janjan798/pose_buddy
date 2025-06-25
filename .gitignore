@@ -1,5 +1,4 @@
 *.csv
-*.json5
 *.mp4
 *.venv
 *.task
