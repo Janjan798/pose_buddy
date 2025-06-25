@@ -70,6 +70,8 @@ def main():
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
         detection_result = pose_detector.detect(mp_image)
 
+
+        print(detection_result.pose_landmarks)
         # Draw landmarks
         annotated_frame = draw_landmarks_on_image(rgb_frame, detection_result)
 
