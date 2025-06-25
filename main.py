@@ -33,6 +33,9 @@ def main():
     
 
     frno=0 #frame no.
+    # Create resizable display window
+    cv2.namedWindow('Pose Detection', cv2.WINDOW_NORMAL)
+    cv2.resizeWindow('Pose Detection', 960, 540)  # Optional size
 
     while cap.isOpened(): # is the video frame loop 
         ret, frame = cap.read() # return the current feed from the Video  
@@ -45,16 +48,15 @@ def main():
         # Convert to RGB for MediaPipe
         rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        # Run pose detection
-        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb_frame)
-        detection_result = pose_detector.detect(mp_image)
+
+        detection_result = MediapipeDetect.return_detection_result(model_path,frame)
 
         #writing data into list
         data=detection_result.pose_landmarks
         video1.data_into_list(data,frno)#landmarks are uploaded into the object's all_landmarks list
 
         # Draw landmarks
-        annotated_frame = draw_landmarks_on_image(rgb_frame, detection_result)
+        annotated_frame = drawing_utils.draw_landmarks_on_image(rgb_frame, data)
         detection_result_landmarks = MediapipeDetect.return_landmarks(model_path= model_path,frame=frame)
         data = detection_result_landmarks
         

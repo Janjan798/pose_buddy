@@ -9,7 +9,7 @@ from mediapipe import solutions
 class drawing_utils():
 
     def draw_landmarks_on_image(rgb_image, detection_result):
-        pose_landmarks_list = detection_result.pose_landmarks
+        pose_landmarks_list = detection_result
         annotated_image = np.copy(rgb_image)
 
         for pose_landmarks in pose_landmarks_list: #pose_landmarks_list is a list of people detected not landmarks 
