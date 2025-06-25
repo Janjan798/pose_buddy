@@ -1,59 +1,36 @@
-import numpy as np
 import mediapipe as mp
-from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from mediapipe import solutions
-from mediapipe.framework.formats import landmark_pb2
 from mediapipe.tasks.python.core.base_options import BaseOptions
 import cv2
 from video_data import Video
-
+from drawing_utils import drawing_utils
+from detection import MediapipeDetect
+import json5
 
 mp_drawing = solutions.drawing_utils
 mp.pose = solutions.pose
 video1 = Video("video1")
 
 
-def draw_landmarks_on_image(rgb_image, detection_result):
-    pose_landmarks_list = detection_result.pose_landmarks
-    annotated_image = np.copy(rgb_image)
-
-    for pose_landmarks in pose_landmarks_list: #pose_landmarks_list is a list of people detected not landmarks 
-        pose_landmarks_proto = landmark_pb2.NormalizedLandmarkList()
-        pose_landmarks_proto.landmark.extend([
-            landmark_pb2.NormalizedLandmark(x=landmark.x, y=landmark.y, z=landmark.z)
-            for landmark in pose_landmarks]) # adds normalised landmarks to each the pose_landmarks_proto list of which is an empty list of Normalised Landmarks
-        solutions.drawing_utils.draw_landmarks(
-            annotated_image,
-            pose_landmarks_proto,
-            solutions.pose.POSE_CONNECTIONS,
-            solutions.drawing_styles.get_default_pose_landmarks_style()) # I assume this is the drawing tool
-    return annotated_image
-
 def main():
-    model_path = r"model\pose_landmarker_lite.task"
-    video_path = r"vids\man_running.mp4"
-
-    # Load MediaPipe pose detector
-    base_options = BaseOptions(model_asset_path=model_path)
-    options = vision.PoseLandmarkerOptions(
-        base_options=base_options,
-        output_segmentation_masks=False)
-    pose_detector = vision.PoseLandmarker.create_from_options(options)
-
-    # Open input video
-    cap = cv2.VideoCapture(video_path) # makes video capture object i.e the Video 
+    try:
+        with open('config.json5', 'r') as f:
+            config = json5.load(f)
+    
+        video_path = config['videos']['input_path']
+        model_path = config['models']['pose_detection']['light_model_path']
+    except:
+        model_path = r"model\pose_landmarker_lite.task"
+        video_path = r"vids\man_running.mp4"
 
 
-    # Set up output video writer
+    cap = cv2.VideoCapture(video_path) # makes video capture object i.e the Video
+
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
-    out = cv2.VideoWriter("output_with_pose.mp4", fourcc, 30.0, 
+    out = cv2.VideoWriter("vids/output_with_pose.mp4", fourcc, 30.0, 
                           (int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))))
-
-    # Create resizable display window
-    cv2.namedWindow('Pose Detection', cv2.WINDOW_NORMAL)
-    cv2.resizeWindow('Pose Detection', 960, 540)  # Optional size
-
+    
 
     frno=0 #frame no.
 
@@ -78,6 +55,11 @@ def main():
 
         # Draw landmarks
         annotated_frame = draw_landmarks_on_image(rgb_frame, detection_result)
+        detection_result_landmarks = MediapipeDetect.return_landmarks(model_path= model_path,frame=frame)
+        data = detection_result_landmarks
+        
+
+        annotated_frame = drawing_utils.draw_landmarks_on_image(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB), detection_result_landmarks)# frame converted to RGB
 
         # Convert back to BGR for OpenCV display/write
         bgr_annotated = cv2.cvtColor(annotated_frame, cv2.COLOR_RGB2BGR)
@@ -100,6 +82,6 @@ def main():
     cap.release()
     out.release()
     cv2.destroyAllWindows()
-
+    
 if __name__ == "__main__":
     main()

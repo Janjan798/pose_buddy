@@ -1,0 +1,18 @@
+{
+  // Model configurations
+  "models": {
+    "pose_detection": {
+      "light_model_path": "model/pose_landmarker_lite.task",
+      "full_model_path": "model/pose_landmarker_full.task"
+    },
+    "face_detection": {
+      "light_model_path": "model/face_landmarker_lite.task"
+    }
+  },
+  
+  // Video configurations
+  "videos": {
+    "input_path": "vids/man_running.mp4",
+    "output_path": "vids/output/output_with_pose.mp4"
+  }
+}
