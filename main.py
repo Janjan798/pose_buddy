@@ -20,9 +20,11 @@ def main():
     
         video_path = config['videos']['input_path']
         model_path = config['models']['pose_detection']['full_model_path']
-    except:
+    except FileNotFoundError or PermissionError: #add more robust error handling 
+        print('using defaults, config load failed')
         model_path = r"model\pose_landmarker_lite.task"
         video_path = r"vids\man_running.mp4"
+
 
 
     cap = cv2.VideoCapture(video_path) # makes video capture object i.e the Video
@@ -70,7 +72,7 @@ def main():
         cv2.imshow('Pose Detection', bgr_annotated)
        
         # Exit on 'q' key or manual close
-        key = cv2.waitKey(1)# IDK WTF THIS DOES BUT 1 WORKS
+        key = cv2.waitKey(1)# IDK WTF THIS DOES BUT 1 WORKS oh it waits for 1
         if key == ord('q') or cv2.getWindowProperty('Pose Detection', cv2.WND_PROP_VISIBLE) < 1:
             break
 

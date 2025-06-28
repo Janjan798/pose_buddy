@@ -1,0 +1,17 @@
+# Explore
+- Working on comparing base model performance to last layer trained models
+
+# Build 
+- Livestream model improvements 
+- Graph pipelines 
+- Benchmark Graphs 
+- Live stream excercise detection categorisation
+- build out detect class for more mediapipe models + non mediapipe models
+- design minimum hardware config pose detection using a raspberry pi 
+- test a multi camera setup
+- figure our body part overlap issue 
+
+# Misc
+- Human model creation / fitting
+- Gym product 
+- Database creation / aquisition
