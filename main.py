@@ -1,16 +1,16 @@
 import mediapipe as mp
-from mediapipe.tasks.python import vision
 from mediapipe import solutions
-from mediapipe.tasks.python.core.base_options import BaseOptions
 import cv2
 from video_data import Video
 from drawing_utils import drawing_utils
 from detection import MediapipeDetect
 import json5
+from graphing_utils import GraphingUtils
 
 mp_drawing = solutions.drawing_utils
 mp.pose = solutions.pose
 video1 = Video("video1")
+grapher=GraphingUtils()
 
 
 def main():
@@ -56,7 +56,7 @@ def main():
         data,data3d = MediapipeDetect.return_landmarks(model_path= model_path,frame=frame)
         #writing data into list
         video1.data_into_list(data,frno)#landmarks are uploaded into the object's all_landmarks list
-        video1.data3d_into_list(data3d,frno)      
+        video1.data3d_into_list(data3d,frno) 
 
         annotated_frame = drawing_utils.draw_landmarks_on_image(rgb_frame, data)
 
@@ -76,8 +76,10 @@ def main():
         if key == ord('q') or cv2.getWindowProperty('Pose Detection', cv2.WND_PROP_VISIBLE) < 1:
             break
 
-    video1.list_into_csv()#data into csv from list
-    video1.list3d_into_csv()
+
+    video1.list_into_dframe()
+    grapher.plot2d(video1,20)
+    grapher.plot_landmark_with_time(video1,"x",26)
 
     cap.release()
     out.release()

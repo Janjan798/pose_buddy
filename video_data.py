@@ -1,4 +1,5 @@
 import csv
+import pandas as pd
 
 class Video():
     '''Class for each video, containing its own all_landmarks list and a video title as attributes 
@@ -7,6 +8,11 @@ class Video():
         self.all_landmarks = []
         self.all_3dlandmarks=[]
         self.name=name
+        self.dframe = pd.DataFrame(columns=['frame','landmark','x','y','z','visibility','presence'])
+
+    def list_into_dframe(self):
+        self.dframe = pd.concat([self.dframe, pd.DataFrame(self.all_landmarks)], ignore_index=True)
+
 
     def data_into_list(self,data:list,frno):
         '''Takes data from mediapipe object and appends it to all_landmarks list of that object
