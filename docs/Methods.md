@@ -17,3 +17,6 @@ from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 from mediapipe.tasks.python import text
 from mediapipe.tasks.python import audio
+-----------------------------------------------------------------------------------------------------
+
+[Transformer Based Pose Detection](https://huggingface.co/docs/transformers/en/model_doc/vitpose)
