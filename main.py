@@ -53,10 +53,10 @@ def main():
      
 
         # Draw landmarks
-        detection_result_landmarks = MediapipeDetect.return_landmarks(model_path= model_path,frame=frame)
-        data = detection_result_landmarks
+        data,data3d = MediapipeDetect.return_landmarks(model_path= model_path,frame=frame)
         #writing data into list
         video1.data_into_list(data,frno)#landmarks are uploaded into the object's all_landmarks list
+        video1.data3d_into_list(data3d,frno)      
 
         annotated_frame = drawing_utils.draw_landmarks_on_image(rgb_frame, data)
 
@@ -77,6 +77,7 @@ def main():
             break
 
     video1.list_into_csv()#data into csv from list
+    video1.list3d_into_csv()
 
     cap.release()
     out.release()

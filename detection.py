@@ -37,11 +37,13 @@ class MediapipeDetect(Detect):
             coordinates in x,y,z for a single frame (the frame should be in BRG)"""
         detection_result = MediapipeDetect.return_detection_result(model_path,frame)    
         
-        return detection_result.pose_landmarks
-      
+        return detection_result.pose_landmarks,detection_result.pose_world_landmarks
+
+    '''  
     def return_world_landmarks(model_path:str,frame:np.ndarray) -> list:
         """returns a list of landmark points in meters on a body with their
             coordinates in x,y,z for a single frame (the frame should be in BRG)"""
         detection_result = MediapipeDetect.return_detection_result(model_path,frame)    
 
         return detection_result.world_landmarks
+'''
